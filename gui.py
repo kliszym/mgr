@@ -44,7 +44,6 @@ class Application(tk.Frame):
         self.label.config(font=("Courier", 14))
         self.label.grid(row=3, column=0, rowspan=1, sticky="SW")
         self.textbox.grid(row=4, column=0, rowspan=1, stick=tk.W)
-        self.textbox.insert(tk.END, "Example text:")
 
     def init_graph(self):
         canvas_x, canvas_y = self.canvas_size
@@ -77,21 +76,29 @@ class Application(tk.Frame):
                 self.canvas.create_line(point1_x, point1_y, point2_x, point2_y)
 
     def draw_graph(self):
+        graph = self.graph
         self.index = 0
         self.canvas.delete("all")
-        self.draw_links(self.graph)
-        self.draw_routers(self.graph)
+        self.draw_links(graph)
+        self.draw_routers(graph)
+        self.describe_graph(graph)
 
     def draw_next_graph(self):
+        graph = self.graphs.graphs[self.index]
         self.canvas.delete("all")
-        self.draw_links(self.graphs.graphs[self.index])
-        self.draw_routers(self.graphs.graphs[self.index])
+        self.draw_links(graph)
+        self.draw_routers(graph)
+        self.describe_graph(graph)
         self.index += 1
         if self.index >= len(self.graphs.graphs):
             self.index = 0
 
     def draw_circle(self, x, y, r, **kwargs):
         self.canvas.create_oval(x - r, y - r, x + r, y + r, **kwargs)
+
+    def describe_graph(self, graph):
+        self.textbox.delete('0.0', tk.END)
+        self.textbox.insert('0.0', str(graph))
 
 
 def start_gui():
