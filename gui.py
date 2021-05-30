@@ -7,6 +7,7 @@ from backup_configs_gnerator import BackupConfigsGenerator
 class Application(tk.Frame):
     def __init__(self, master=None):
         self.canvas_size = (600, 600)
+        self.textbox_size = (22, 30)
         self.drawing_radius = 200
         self.circle_radius = 20
         self.router_color = "blue"
@@ -16,34 +17,34 @@ class Application(tk.Frame):
         self.master.title("Networking Simulator")
         self.master.geometry("1000x600")
         self.create_buttons()
-        self.create_text_box()
+        self.create_textbox()
         self.create_canvas()
         self.index = 0
         self.init_graph()
 
     def create_buttons(self):
-        self.button_next = tk.Button(self, text="NEXT", command=self.draw_next_graph)
-        self.button_next.pack(side=tk.LEFT, anchor=tk.NW)
-
         self.button_start = tk.Button(self, text="BASIC", command=self.draw_graph)
-        self.button_start.pack(side=tk.LEFT, anchor=tk.NW)
+        self.button_start.grid(row=0, column=0, rowspan=1, sticky="NESW")
 
-        self.quit = tk.Button(self, text="QUIT",
-                              command=self.master.destroy)
-        self.quit.pack(side=tk.LEFT, anchor=tk.NW)
+        self.button_next = tk.Button(self, text="NEXT", command=self.draw_next_graph)
+        self.button_next.grid(row=1, column=0, rowspan=1, sticky="NESW")
+
+        self.button_quit = tk.Button(self, text="QUIT", command=self.master.destroy)
+        self.button_quit.grid(row=2, column=0, rowspan=1, sticky="NESW")
 
     def create_canvas(self):
         canvas_x, canvas_y = self.canvas_size
         self.canvas = tk.Canvas(self, width=canvas_x, height=canvas_y)
-        self.canvas.pack(side=tk.BOTTOM, fill=tk.BOTH, expand=1, anchor=tk.SW)
+        self.canvas.grid(row=0, column=1, rowspan=20)
 
-    def create_text_box(self):
-        self.text_box = tk.Text(self, height=5, width=52)
+    def create_textbox(self):
+        textbox_w, textbox_h = self.textbox_size
+        self.textbox = tk.Text(self, height=textbox_h, width=textbox_w)
         self.label = tk.Label(self, text="Lengths:")
         self.label.config(font=("Courier", 14))
-        self.label.pack(side=tk.LEFT)
-        self.text_box.pack(side=tk.LEFT)
-        self.text_box.insert(tk.END, "Example text:")
+        self.label.grid(row=3, column=0, rowspan=1, sticky="SW")
+        self.textbox.grid(row=4, column=0, rowspan=1, stick=tk.W)
+        self.textbox.insert(tk.END, "Example text:")
 
     def init_graph(self):
         canvas_x, canvas_y = self.canvas_size
