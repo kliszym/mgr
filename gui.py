@@ -1,13 +1,13 @@
 import tkinter as tk
-import math
 from graph import *
 from backup_configs_gnerator import BackupConfigsGenerator
 
 
 class Application(tk.Frame):
     def __init__(self, master=None):
+        self.row_ptr = 0
         self.canvas_size = (600, 600)
-        self.textbox_size = (22, 30)
+        self.textbox_size = (22, 20)
         self.drawing_radius = 200
         self.circle_radius = 20
         self.router_color = "blue"
@@ -24,13 +24,33 @@ class Application(tk.Frame):
 
     def create_buttons(self):
         self.button_start = tk.Button(self, text="BASIC", command=self.draw_graph)
-        self.button_start.grid(row=0, column=0, rowspan=1, sticky="NESW")
+        self.button_start.grid(row=self.row_ptr, column=0, rowspan=1, sticky="NESW")
+        self.row_ptr += 1
 
-        self.button_next = tk.Button(self, text="NEXT", command=self.draw_next_graph)
-        self.button_next.grid(row=1, column=0, rowspan=1, sticky="NESW")
+        self.button_next = tk.Button(self, text="DEL NEXT", command=self.draw_next_graph)
+        self.button_next.grid(row=self.row_ptr, column=0, rowspan=1, sticky="NESW")
+        self.row_ptr += 1
+
+        self.button_path = tk.Button(self, text="PATH", command=self.compute_path)
+        self.button_path.grid(row=self.row_ptr, column=0, rowspan=1, sticky="NESW")
+        self.row_ptr += 1
+
+        self.button_load = tk.Button(self, text="LOAD", command=self.load_graph)
+        self.button_load.grid(row=self.row_ptr, column=0, rowspan=1, sticky="NESW")
+        self.row_ptr += 1
+
+        self.button_reset = tk.Button(self, text="RESET", command=self.reset_graph)
+        self.button_reset.grid(row=self.row_ptr, column=0, rowspan=1, sticky="NESW")
+        self.row_ptr += 1
 
         self.button_quit = tk.Button(self, text="QUIT", command=self.master.destroy)
-        self.button_quit.grid(row=2, column=0, rowspan=1, sticky="NESW")
+        self.button_quit.grid(row=self.row_ptr, column=0, rowspan=1, sticky="NESW")
+        self.row_ptr += 1
+
+    def load_graph(self):
+        text = self.textbox.get('0.0', tk.END)
+        self.init_graph(text)
+        self.draw_graph()
 
     def create_canvas(self):
         canvas_x, canvas_y = self.canvas_size
@@ -42,16 +62,18 @@ class Application(tk.Frame):
         self.textbox = tk.Text(self, height=textbox_h, width=textbox_w)
         self.label = tk.Label(self, text="Lengths:")
         self.label.config(font=("Courier", 14))
-        self.label.grid(row=3, column=0, rowspan=1, sticky="SW")
-        self.textbox.grid(row=4, column=0, rowspan=1, stick=tk.W)
+        self.label.grid(row=self.row_ptr, column=0, rowspan=1, sticky="SW")
+        self.row_ptr += 1
+        self.textbox.grid(row=self.row_ptr, column=0, rowspan=1, stick=tk.W)
+        self.row_ptr += 1
 
-    def init_graph(self):
+    def init_graph(self, text=None):
         canvas_x, canvas_y = self.canvas_size
         center_x = canvas_x / 2
         center_y = canvas_y / 2
         center = (center_x, center_y)
 
-        self.graph = Graph(center, self.drawing_radius)
+        self.graph = Graph(center, self.drawing_radius, text)
         self.graphs = BackupConfigsGenerator(self.graph)
         self.graphs.generate_graphs()
 
@@ -59,6 +81,7 @@ class Application(tk.Frame):
         for router in graph.routers:
             point_x, point_y = router.point
             self.draw_circle(point_x, point_y, self.circle_radius, fill=self.router_color)
+            self.canvas.create_text(point_x, point_y, text=str(router.id))
 
         self.canvas.create_rectangle(10, 10, self.canvas.winfo_width() - 10, self.canvas.winfo_height() - 10)
 
@@ -99,6 +122,13 @@ class Application(tk.Frame):
     def describe_graph(self, graph):
         self.textbox.delete('0.0', tk.END)
         self.textbox.insert('0.0', str(graph))
+
+    def compute_path(self):
+        self.graphs.compute_dijkstry()
+
+    def reset_graph(self):
+        self.init_graph()
+        self.draw_graph()
 
 
 def start_gui():

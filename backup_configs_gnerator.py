@@ -1,8 +1,11 @@
 from copy import deepcopy
 
+from topology import Topology
+
 
 class BackupConfigsGenerator:
     def __init__(self, graph):
+        self.topology = Topology()
         self.graph = graph
         self.graphs = []
 
@@ -11,3 +14,12 @@ class BackupConfigsGenerator:
             temp_graph = deepcopy(self.graph)
             temp_graph.delete_router(i)
             self.graphs.append(temp_graph)
+
+    def compute_dijkstry(self):
+        for link in self.graph.links:
+            link.dump_links(self.topology.topology)
+        print(self.topology.topology)
+        self.topology.create_shortest_links()
+
+    def compute_mrc(self):
+        pass
