@@ -42,7 +42,7 @@ class Graph:
             self._create_routers(points)
             self.links = []
             for key in data["routers"]:
-                self.links.append(Link(key, data["routers"][key]["links"], data["routers"][key]["lengths"]))
+                self.links.append(Link(int(key), data["routers"][key]["links"], data["routers"][key]["lengths"]))
         else:
             data_text = self.process_text(text)
             self.routers_count = data_text["routers_count"]
@@ -51,7 +51,7 @@ class Graph:
             self._create_routers(points)
             self.links = []
             for key in data_text["routers"]:
-                self.links.append(Link(key, data_text["routers"][key]["links"], data_text["routers"][key]["lengths"]))
+                self.links.append(Link(int(key), data_text["routers"][key]["links"], data_text["routers"][key]["lengths"]))
 
     def __str__(self):
         str = ""
