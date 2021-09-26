@@ -16,9 +16,11 @@ class BackupConfigsGenerator:
             self.graphs.append(temp_graph)
 
     def compute_dijkstry(self):
+        self.topology.clear_topology()
         for link in self.graph.links:
             link.dump_links(self.topology.topology)
         print(self.topology.topology)
+        self.topology.clear_shortest_path_trees()
         self.topology.create_shortest_links()
 
     def compute_mrc(self):

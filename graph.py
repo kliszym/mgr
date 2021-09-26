@@ -34,7 +34,7 @@ class Link:
 
 
 class Graph:
-    def __init__(self, center, radius, text = None):
+    def __init__(self, center, radius, text=None):
         if text is None:
             self.routers_count = data["routers_count"]
             self.routers = []
@@ -108,7 +108,6 @@ class Graph:
         for line in text_lines:
             if not line:
                 continue
-            print(data_text["routers_count"])
             routers_and_rest = line.split("->")
             router = int(routers_and_rest[0])
             if router > max_router:
@@ -117,14 +116,11 @@ class Graph:
                 "links": [],
                 "lengths": []
             }
-            print(routers_and_rest)
             routers_and_rest[1] = routers_and_rest[1].replace("[", "")
             routers_and_rest[1] = routers_and_rest[1].replace("]", "")
             routers_and_rest[1] = routers_and_rest[1].replace(")", "")
             routers_and_rest[1] = routers_and_rest[1].replace(" ", "")
             links_and_lengths = routers_and_rest[1].split("(")
-            print(links_and_lengths)
-            print("\n")
             links = links_and_lengths[0].split(",")
             links = list(map(int, links))
             lengths = links_and_lengths[1].split(",")
@@ -134,7 +130,38 @@ class Graph:
             temp_max_router = max(links)
             if temp_max_router > max_router:
                 max_router = temp_max_router
-        data_text["routers_count"] = max_router
-        print(data_text)
+
+        # check how many routers are not in description
+        prob_routers = range(1, max_router)
+        not_present_routers = []
+        for i in prob_routers:
+            appeared = False
+            for router in data_text["routers"]:
+                if router == i:
+                    appeared = True
+                    break
+                if i in data_text["routers"][router]["links"]:
+                    appeared = True
+                    break
+            if not appeared:
+                not_present_routers.append(i)
+
+
+        # change to minimal indexes of routers
+        for not_present_router_index in range(0, len(not_present_routers)):
+            not_present_router = not_present_routers[not_present_router_index]
+            for router_to_change_index in range(0, max_router):
+                if router_to_change_index in data_text["routers"].keys():
+                    for link_to_change_index in range(0, len(data_text["routers"][router_to_change_index]["links"])):
+                        if data_text["routers"][router_to_change_index]["links"][link_to_change_index] > not_present_router:
+                            data_text["routers"][router_to_change_index]["links"][link_to_change_index] = data_text["routers"][router_to_change_index]["links"][link_to_change_index] - 1
+                    if router_to_change_index > not_present_router:
+                        data_text["routers"][router_to_change_index - 1] = data_text["routers"][router_to_change_index]
+                        del(data_text["routers"][router_to_change_index])
+            for next_not_present_router_index in range(not_present_router_index, len(not_present_routers)):
+                not_present_routers[next_not_present_router_index] = not_present_routers[next_not_present_router_index] - 1
+
+        data_text["routers_count"] = max_router - len(not_present_routers)
+
         return data_text
 
