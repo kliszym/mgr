@@ -1,5 +1,7 @@
 from data import data
+
 import math
+import sys
 
 
 class Router:
@@ -165,3 +167,23 @@ class Graph:
 
         return data_text
 
+    def maximize_weights(self, node1, node2=None):
+        if node2 is None:
+            for link in self.links:
+                if link.router == node1:
+                    for length_index in range(0, len(link.lengths)):
+                        link.lengths[length_index] = sys.maxsize
+                else:
+                    for router_index in range(0, len(link.links)):
+                        if link.links[router_index] == node1:
+                            link.lengths[router_index] = sys.maxsize
+        else:
+            for link in self.links:
+                if link.router == node1:
+                    for router_index in range(0, len(link.links)):
+                        if link.links[router_index] == node2:
+                            link.lengths[router_index] = sys.maxsize
+                elif link.router == node2:
+                    for router_index in range(0, len(link.links)):
+                        if link.links[router_index] == node1:
+                            link.lengths[router_index] = sys.maxsize

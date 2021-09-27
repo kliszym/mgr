@@ -9,10 +9,11 @@ class Application(tk.Frame):
         self.row_ptr = 0
         self.canvas_size = (600, 600)
         self.textbox_size = (22, 20)
-        self.textbox_path_size = (1, 1)
+        self.textbox_path_size = (2, 1)
         self.drawing_radius = 200
         self.circle_radius = 20
         self.router_color = "blue"
+        self.path_color = "red"
         super().__init__(master)
         self.master = master
         self.pack()
@@ -113,7 +114,6 @@ class Application(tk.Frame):
             for through in range(0, len(leafs["through"][index]) - 1):
                 router1 = leafs["through"][index][through]
                 router2 = leafs["through"][index][through + 1]
-                print(f"router1: {router1}, router2: {router2}")
                 router = next((router for router in graph.routers if router.id == router1), None)
                 if router is None:
                     continue
@@ -122,7 +122,7 @@ class Application(tk.Frame):
                 if router is None:
                     continue
                 point2_x, point2_y = router.point
-                self.canvas.create_line(point1_x, point1_y, point2_x, point2_y, fill="#FF0000")
+                self.canvas.create_line(point1_x, point1_y, point2_x, point2_y, fill=self.path_color)
 
     def draw_graph(self):
         graph = self.graph
@@ -151,7 +151,18 @@ class Application(tk.Frame):
 
     def compute_path(self):
         router = int(self.textbox_path.get('0.0', tk.END))
+        if router < 1 or router > self.graphs.graph.routers_count:
+            pop_up = tk.Toplevel(self)
+            pop_up.title("Error")
+            pop_up.geometry("300x50")
+            pop_up_label = tk.Label(pop_up, text="Wrong value in path field.")
+            pop_up_label.config(font=("Courier", 14))
+            pop_up_label.pack()
+            return
         self.graphs.compute_dijkstry()
+        self.graphs.compute_mrc()
+#        self.graphs.compute_author()
+        self.draw_links(self.graph)
         self.draw_spt(self.graph, self.graphs, router)
         self.draw_routers(self.graph)
 
