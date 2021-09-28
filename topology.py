@@ -163,6 +163,36 @@ class Topology:
         for tree_id in self.shortest_path_trees["trees"]:
             tree = self.shortest_path_trees["trees"][tree_id]
             for path in tree["through"]:
-                #destionation, managment router, next-hop
+                # destionation, managment router, next-hop
                 routing_tables.append([path[len(path) - 1], path[0], path[1]])
         return routing_tables
+
+    def dump_costs(self, failed_node=None):
+        costs_tables = []
+        for tree_id in self.shortest_path_trees["trees"]:
+            if failed_node == tree_id:
+                continue
+            tree = self.shortest_path_trees["trees"][tree_id]
+            for links in tree["through"]:
+                if links[len(links) - 1] == failed_node or links[0] == failed_node:
+                    continue
+                # destionation, managment router, next-hop
+                sum = 0
+                for link_index in range(0, len(links) - 1):
+                    sum += self.find_cost(links[link_index], links[link_index + 1])
+                costs_tables.append({
+                    "router_a": links[0],
+                    "router_b": links[len(links) - 1],
+                    "cost": sum})
+
+        return costs_tables
+
+    def find_cost(self, router_a, router_b):
+        spt_a = self.shortest_path_trees["trees"][router_a]
+        print(spt_a)
+
+        for index in range(0, len(spt_a["a_router"])):
+            if (spt_a["a_router"][index] == router_a and spt_a["b_router"][index] == router_b) \
+                    or (spt_a["a_router"][index] == router_b and spt_a["b_router"][index] == router_a):
+                return spt_a["length"][index]
+        return sys.maxsize

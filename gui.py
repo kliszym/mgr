@@ -1,5 +1,5 @@
 import tkinter as tk
-import json
+from copy import deepcopy
 from graph import *
 from backup_configs_gnerator import BackupConfigsGenerator
 
@@ -160,8 +160,41 @@ class Application(tk.Frame):
             pop_up_label.pack()
             return
         self.graphs.compute_dijkstry()
-        self.graphs.compute_mrc()
-#        self.graphs.compute_author()
+        topology_mrc = self.graphs.compute_mrc()
+        self.graphs.find_unique_routing_table_options(topology_mrc)
+
+        topology_aut = self.graphs.compute_author()
+        self.graphs.find_unique_routing_table_options(topology_aut)
+        topology_both = deepcopy(topology_mrc)
+        for entry in topology_aut:
+            topology_both.append(entry)
+
+        print(len(topology_mrc))
+        print(len(topology_aut))
+        print(len(topology_both))
+        print(f"Costs evaluation:")
+        mrc_costs = self.graphs.find_all_costs(topology_mrc)
+        aut_costs = self.graphs.find_all_costs(topology_aut)
+        self.graphs.find_unique_costs(mrc_costs, aut_costs)
+        max_cost, mrc_path, aut_path = self.graphs.find_max_cost(mrc_costs, aut_costs)
+        print("MRC:")
+        mrc_costs = self.graphs.costs_dict_to_array(mrc_costs)
+        print(mrc_costs)
+        print(len(mrc_costs))
+        print(f"Sum of mrc costs: {sum(mrc_costs)}")
+        print("AUT:")
+        aut_costs = self.graphs.costs_dict_to_array(aut_costs)
+        print(aut_costs)
+        print(len(aut_costs))
+        print(f"Sum of aut costs: {sum(aut_costs)}")
+        average_better_cost = (sum(mrc_costs) - sum(aut_costs)) / len(mrc_costs)
+        percentage_better_cost = 100 - ((sum(aut_costs) / sum(mrc_costs)) * 100)
+        print(f"On average costs is better of {average_better_cost}. That is {percentage_better_cost} percent better.")
+        print(f"Biggest difference was between MRC path {mrc_path} and AUT path {aut_path} and was equal to: {max_cost}."
+              f"\nAUT found {100 - (aut_path['cost'] / mrc_path['cost'] * 100)} percent better path.")
+
+        self.graphs.find_unique_routing_table_options(topology_both)
+
         self.draw_links(self.graph)
         self.draw_spt(self.graph, self.graphs, router)
         self.draw_routers(self.graph)
